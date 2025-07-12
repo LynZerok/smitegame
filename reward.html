@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ganador - Recompensa</title>
+  <style>
+    html, body {
+      margin: 0; padding: 0; height: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: url('baron.jpg') no-repeat center center;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      text-shadow: 2px 2px 10px black;
+      flex-direction: column;
+      user-select: none;
+    }
+    .reward-container {
+      background-color: rgba(0,0,0,0.7);
+      padding: 40px;
+      border-radius: 20px;
+      text-align: center;
+      max-width: 600px;
+      box-shadow: 0 0 30px gold;
+      animation: glow 2s infinite alternate;
+    }
+    h1 {
+      font-size: 50px;
+      margin-bottom: 20px;
+      color: gold;
+    }
+    p {
+      font-size: 24px;
+      margin-bottom: 40px;
+    }
+    @keyframes glow {
+      from {
+        box-shadow: 0 0 20px gold, 0 0 40px gold, 0 0 60px gold;
+      }
+      to {
+        box-shadow: 0 0 40px gold, 0 0 60px gold, 0 0 80px gold;
+      }
+    }
+    button {
+      font-size: 22px;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background: gold;
+      color: black;
+      font-weight: bold;
+      box-shadow: 0 0 10px #daa520;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #e6c200;
+    }
+  </style>
+</head>
+<body>
+  <div class="reward-container">
+    <h1>¡Felicidades!</h1>
+    <p>Has ganado el reto de Smitear al Barón lo más cerca posible a 1200 puntos de vida.</p>
+    <button onclick="volverAlInicio()">Volver al inicio</button>
+  </div>
+
+  <script>
+    function volverAlInicio() {
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>

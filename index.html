@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Smite al Barón</title>
+  <style>
+    html, body {
+      margin: 0; padding: 0; height: 100%;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: url('/Imágenes/R.jpg') no-repeat center center;
+      background-size: cover;
+      overflow: hidden;
+      position: relative;
+      color: white;
+    }
+    .container {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      width: 100%;
+      max-width: 600px;
+      padding: 20px;
+      border-radius: 15px;
+    }
+    h1 {
+      font-size: 40px;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 6px #000000cc;
+    }
+    #baronHealthContainer {
+      width: 100%;
+      background-color: #2b0000;
+      border: 3px solid #ff0000;
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 20px 0;
+      box-shadow:
+        0 0 8px 2px rgba(255, 0, 0, 0.7),
+        inset 0 0 10px 3px rgba(255, 100, 100, 0.8);
+    }
+    #baronHealth {
+      height: 32px;
+      background: linear-gradient(90deg, #ff3b3b 0%, #b20000 70%, #ff1a1a 100%);
+      box-shadow:
+        0 0 12px 3px #ff0000,
+        inset 0 2px 10px 0 #ff6666;
+      border-radius: 12px 0 0 12px;
+      transition: width 0.02s linear;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 18px;
+      margin: 10px 5px;
+      background-color: rgba(0,0,0,0.6);
+      border: none;
+      border-radius: 5px;
+      color: white;
+      cursor: pointer;
+      text-shadow: 1px 1px 2px #000000bb;
+      transition: background-color 0.3s;
+    }
+    input:focus, button:hover {
+      background-color: rgba(255,255,255,0.2);
+    }
+    .hidden {
+      display: none;
+    }
+    #currentHealth {
+      font-weight: bold;
+      text-shadow: 1px 1px 4px #000000cc;
+    }
+    #smiteAnimationOverlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0,0,0,0.85);
+      color: white;
+      font-size: 80px;
+      font-weight: bold;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      flex-direction: column;
+      user-select: none;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    #smiteAnimationOverlay.show {
+      visibility: visible;
+      opacity: 1;
+    }
+    #smiteLifeDisplay {
+      margin-bottom: 30px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>¡Smitea al Barón!</h1>
+    <div id="nameForm">
+      <label>Tu nombre: <input type="text" id="playerName"></label><br />
+      <button onclick="startGame()">Iniciar</button>
+      <button onclick="endGame()">Acabar juego y mostrar puntajes</button>
+    </div>
+    <div id="gameSection" class="hidden">
+      <div id="baronHealthContainer">
+        <div id="baronHealth"></div>
+      </div>
+      <button onclick="smite()">¡SMITE!</button>
+      <p id="currentHealth"></p>
+    </div>
+  </div>
+
+  <!-- Overlay para mostrar la vida al momento del smite (solo número) -->
+  <div id="smiteAnimationOverlay">
+    <div id="smiteLifeDisplay">0</div>
+  </div>
+
+  <script>
+    let health = 4000;
+    let interval;
+    let currentPlayer = '';
+    const maxHealth = 15000;
+    const targetHealth = 1200;
+    let players = [];
+
+    window.onload = () => {
+      const savedPlayers = localStorage.getItem('baronPlayers');
+      if (savedPlayers) {
+        try {
+          players = JSON.parse(savedPlayers);
+          if (!Array.isArray(players)) players = [];
+        } catch {
+          players = [];
+        }
+      }
+    };
+
+    function startGame() {
+      const nameInput = document.getElementById('playerName');
+      const name = nameInput.value.trim();
+      if (!name) return alert('Escribe tu nombre.');
+      currentPlayer = name;
+      document.getElementById('nameForm').classList.add('hidden');
+      document.getElementById('gameSection').classList.remove('hidden');
+      health = 4000;
+      updateHealthBar();
+      interval = setInterval(() => {
+        if (health > 0) {
+          health -= 1;
+          updateHealthBar();
+        } else {
+          clearInterval(interval);
+          smite();
+        }
+      }, 3);
+    }
+
+    function updateHealthBar() {
+      const percent = (health / maxHealth) * 100;
+      document.getElementById('baronHealth').style.width = percent + '%';
+      document.getElementById('currentHealth').innerText = `Vida actual del Barón: ${Math.max(0, Math.round(health))}`;
+    }
+
+    function smite() {
+      clearInterval(interval);
+      const smiteLife = Math.max(0, Math.round(health));
+      const overlay = document.getElementById('smiteAnimationOverlay');
+      const lifeDisplay = document.getElementById('smiteLifeDisplay');
+
+      lifeDisplay.textContent = smiteLife;
+      overlay.classList.add('show');
+
+      // Guardar resultado inmediatamente
+      if (currentPlayer) {
+        const diff = Math.abs(smiteLife - targetHealth);
+        players.push({ name: currentPlayer, smiteHealth: smiteLife, diff });
+        localStorage.setItem('baronPlayers', JSON.stringify(players));
+      }
+
+      // Después de 5 segundos, ocultar overlay y reiniciar pantalla
+      setTimeout(() => {
+        overlay.classList.remove('show');
+        document.getElementById('gameSection').classList.add('hidden');
+        document.getElementById('nameForm').classList.remove('hidden');
+        document.getElementById('playerName').value = '';
+        currentPlayer = '';
+      }, 5000);
+    }
+
+    function endGame() {
+      // NO borrar localStorage aquí para mantener los puntajes
+      window.location.href = 'scoreboard.html';
+    }
+
+    document.addEventListener('keydown', function(event) {
+      if (event.code === 'Space' && !document.getElementById('gameSection').classList.contains('hidden')) {
+        event.preventDefault();
+        smite();
+      }
+    });
+  </script>
+</body>
+</html>

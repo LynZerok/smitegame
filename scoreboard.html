@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Scoreboard - Smite al Barón</title>
+  <style>
+    html, body {
+      margin: 0; padding: 0; height: 100%;
+      font-family: Arial, sans-serif;
+      background-color: #0047ab; /* Azul de fondo */
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      position: relative;
+    }
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: url('baron.jpg') no-repeat center center;
+      background-size: cover;
+      opacity: 0.15;
+      z-index: 0;
+    }
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 90%;
+      max-width: 800px;
+      text-align: center;
+      background-color: rgba(0,0,0,0.6);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px #000000cc;
+    }
+    h1 {
+      margin-bottom: 25px;
+      font-size: 48px;
+      text-shadow: 2px 2px 8px #000000cc;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 22px;
+    }
+    th, td {
+      border: 2px solid white;
+      padding: 12px 10px;
+    }
+    th {
+      background-color: #222a;
+    }
+    tr:nth-child(even) {
+      background-color: #00000033;
+    }
+    .winner {
+      background-color: #ffd700cc;
+      color: black;
+      font-weight: bold;
+      font-size: 24px;
+      text-shadow: none;
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px 24px;
+      font-size: 20px;
+      cursor: pointer;
+      border-radius: 8px;
+      border: none;
+      background-color: #ffd700;
+      color: black;
+      font-weight: bold;
+      transition: background-color 0.3s;
+      margin-right: 10px;
+    }
+    button:hover {
+      background-color: #e6c200;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Scoreboard - Smite al Barón</h1>
+    <table id="scoreTable">
+      <thead>
+        <tr>
+          <th>Jugador</th>
+          <th>Vida al Smite</th>
+          <th>Diferencia a 1200</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div>
+      <button onclick="resetAndGoHome()">Reiniciar juego</button>
+      <button id="winnerPrizeBtn" style="display:none;" onclick="goToReward()">Ver premio del ganador</button>
+    </div>
+  </div>
+
+  <script>
+    let players = [];
+
+    function loadPlayers() {
+      const saved = localStorage.getItem('baronPlayers');
+      if (saved) {
+        try {
+          players = JSON.parse(saved);
+          if (!Array.isArray(players)) players = [];
+        } catch {
+          players = [];
+        }
+      }
+    }
+
+    function showScores() {
+      loadPlayers();
+      if (players.length === 0) {
+        alert("No hay puntajes guardados.");
+        return;
+      }
+
+      players.sort((a,b) => a.diff - b.diff);
+
+      const tbody = document.querySelector('#scoreTable tbody');
+      tbody.innerHTML = '';
+
+      const bestDiff = players[0].diff;
+
+      players.forEach(p => {
+        const tr = document.createElement('tr');
+        if (p.diff === bestDiff) {
+          tr.classList.add('winner');
+        }
+        tr.innerHTML = `
+          <td>${p.name}</td>
+          <td>${p.smiteHealth}</td>
+          <td>${p.diff}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Mostrar botón para ir al premio
+      document.getElementById('winnerPrizeBtn').style.display = 'inline-block';
+    }
+
+    function resetAndGoHome() {
+      localStorage.removeItem('baronPlayers');
+      window.location.href = 'index.html';
+    }
+
+    function goToReward() {
+      window.location.href = 'reward.html';
+    }
+
+    window.onload = showScores;
+  </script>
+</body>
+</html>
